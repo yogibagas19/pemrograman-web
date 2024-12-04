@@ -1,0 +1,162 @@
+/* Global */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+  
+  /* Navbar */
+  .navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar .logo {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+  
+  .navbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .navbar .user-info span {
+    color: #ddd;
+  }
+  
+  .navbar .logout-btn {
+    text-decoration: none;
+    padding: 5px 10px;
+    background-color: #f44336;
+    color: #fff;
+    border-radius: 3px;
+  }
+  
+  .navbar .logout-btn:hover {
+    background-color: #d32f2f;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 200px;
+    background: #222;
+    color: #fff;
+    position: fixed;
+    top: 50px;
+    bottom: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    transition: background 0.3s ease;
+  }
+  
+  .sidebar a.active,
+  .sidebar a:hover {
+    background-color: #444;
+    color: #fff;
+  }
+  
+  /* Container */
+  .container {
+    margin-left: 220px;
+    padding: 20px;
+  }
+  
+  /* Header */
+  header h1 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+  }
+  
+  /* Content */
+  .content{
+    margin-left: 20px;
+  }
+  .content h2 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+  }
+  
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background: #fff;
+  }
+  
+  table thead {
+    background: #333;
+    color: #fff;
+  }
+  
+  table th,
+  table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  table tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+  
+  .product-img {
+    width: 50px;
+    height: auto;
+  }
+  
+  /* Buttons */
+  .btn {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    display: inline-block;
+    margin: 0 5px;
+  }
+  
+  .edit-btn {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .edit-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .delete-btn {
+    background-color: #f44336;
+    color: #fff;
+  }
+  
+  .delete-btn:hover {
+    background-color: #d32f2f;
+  }
+  
+  .add-btn {
+    background-color: #008cba;
+    color: #fff;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  
+  .add-btn:hover {
+    background-color: #007bb5;
+  }
+  

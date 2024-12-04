@@ -136,7 +136,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
     <!-- Navbar -->
     <div class="navbar">
         <div class="user-info">
-            <span>Welcome, <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
+            <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
         </div>
         <a href="../logout.php" class="logout-btn">Logout</a>
     </div>
@@ -147,6 +147,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
         <a href="listUsers.php">List Users</a>
         <a href="listGames.php">List Games</a>
         <a href="listVoucher.php">List Vouchers</a>
+        <a href="userHistory.php">User History</a>
     </div>
 
     <!-- Main Content -->
