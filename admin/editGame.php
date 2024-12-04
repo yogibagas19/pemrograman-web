@@ -43,7 +43,10 @@ if (isset($_GET['id'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     $nama = $_POST['nama'];
     $harga = $_POST['harga'];
-    $desc = $_POST['desc'];
+    $desc = $_POST['desc']; // Ambil nilai deskripsi
+
+    // Debugging: Periksa apakah nilai deskripsi diterima dengan benar
+    // echo "<script>console.log('Deskripsi: $desc');</script>"; // Bisa gunakan ini untuk debug di browser
 
     // Periksa apakah file foto baru di-upload
     if ($_FILES['photo']['name']) {
@@ -76,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     }
 }
 
+
 // Tutup koneksi
 $conn->close();
 ?>
@@ -89,28 +93,217 @@ $conn->close();
     <title>Update Game</title>
     <!-- Link ke file CSS -->
     <link rel="stylesheet" href="../../css/admin/createDataGame.css">
+    <style>
+/* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        .navbar .logout-btn {
+            text-decoration: none;
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: #ecf0f1;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 220px;
+            height: calc(100% - 60px);
+            background-color: #34495e;
+            color: #ecf0f1;
+            padding: 20px 10px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 500;
+        }
+
+        .sidebar a {
+            display: block;
+            text-decoration: none;
+            color: #bdc3c7;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #1abc9c;
+            color: #fff;
+        }
+
+        /* Content */
+        .content {
+            margin-left: 240px;
+            padding: 20px;
+            padding-top: 50px;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .content h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            justify-self: center;
+        }
+
+        /* Form Styles */
+        form {
+            background-color: #232e38;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        form h2 {
+            text-align: center;
+            color: #ff962d;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ff962d;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea {
+            width: 93%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #2c353f;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #00f7ff;
+            outline: none;
+        }
+
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #00f7ff;
+            color: #151f28;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #00a7d0;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                box-shadow: none;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+    </style>
 </head>
-
 <body>
-    <h1>Update Game</h1>
+<div class="navbar">
+        <div class="user-info">
+        <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
+        </div>
+        <a href="../logout.php" class="logout-btn">Logout</a>
+    </div>
 
-    <form action="updateGame.php?id=<?php echo $game['id']; ?>" method="POST" enctype="multipart/form-data">
-        <label for="nama">Nama:</label>
-        <input type="text" id="nama" name="nama" value="<?php echo htmlspecialchars($game['name']); ?>" required>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboardAdmin.php">Dashboard</a>
+        <a href="listGames.php">List Games</a>
+    </div>
 
-        <label for="harga">Harga:</label>
-        <input type="number" id="harga" name="harga" value="<?php echo htmlspecialchars($game['price']); ?>" required>
+    <div class="content">
+        <form action="editGame.php?id=<?php echo $game['id']; ?>" method="POST" enctype="multipart/form-data">
+            <h1>Edit Game</h1>
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" name="nama" value="<?php echo htmlspecialchars($game['name']); ?>" required>
 
-        <label for="desc">Deskripsi:</label>
-        <textarea name="desc" id="desc" rows="3" maxlength="50" required><?php echo $game['description']; ?></textarea>
+            <label for="harga">Harga:</label>
+            <input type="number" id="harga" name="harga" value="<?php echo htmlspecialchars($game['price']); ?>" required>
 
-        <label for="photo">Foto Barang:</label>
-        <input type="file" id="photo" name="photo">
+            <label for="desc">Deskripsi:</label>
+            <textarea name="desc" id="desc" rows="3" required><?php echo htmlspecialchars($game['description']); ?></textarea>
 
-        <button type="submit" name="update">Update Game</button>
-    </form>
+            <label for="photo">Foto Barang:</label>
+            <input type="file" id="photo" name="photo">
 
-    <a href="listGames.php">Kembali ke Daftar Game</a>
+            <button type="submit" name="update">Update Game</button>
+        </form>
+    </div>
 </body>
 
 </html>

@@ -1,144 +1,165 @@
 <?php
 session_start();
-include '../db_connection.php';
+require_once '../db_connection.php';
+
+// Ensure user is logged in and has admin rights
+if (!isset($_SESSION['id_user']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    die("Unauthorized access");
+}
+
+// Establish database connection
 $conn = connect_db();
 
-// Cek apakah pengguna sudah login sebagai admin
-if (!isset($_SESSION['username']) || $_SESSION['id_role'] != 'admin') {
-    header("Location: ../login.php");
-    exit;
+// Initialize variables
+$error_message = '';
+$success_message = '';
+$userId = null;
+$user_data = null;
+
+// Validate and sanitize user ID from URL
+if (isset($_GET['id']) && filter_var($_GET['id'], FILTER_VALIDATE_INT)) {
+    $userId = intval($_GET['id']);
+} else {
+    $error_message = "Invalid User ID.";
 }
 
-// Variabel untuk menyimpan pesan error atau sukses
-$error = '';
-$success = '';
+// Fetch user data if ID is valid
+if ($userId) {
+    $query = "SELECT username, fullname FROM users WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    
+    if ($stmt) {
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user_data = $result->fetch_assoc();
+        $stmt->close();
 
-// Ambil ID user yang akan diedit dari parameter URL
-$edit_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-// Cek apakah ID valid
-if ($edit_id <= 0) {
-    $_SESSION['error_message'] = "Invalid user ID.";
-    header("Location: listUsers.php");
-    exit;
-}
-
-// Ambil data user yang akan diedit
-$user = null;
-if ($edit_id > 0) {
-    $stmt = $conn->prepare("SELECT id, username, fullname, id_role FROM users WHERE id = ?");
-    $stmt->bind_param("i", $edit_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
-
-    if (!$user) {
-        $_SESSION['error_message'] = "User not found.";
-        header("Location: listUsers.php");
-        exit;
-    }
-}
-
-// Proses form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validasi input
-    $fullname = trim($_POST['fullname']);
-    $role = trim($_POST['role']);
-
-    // Cek apakah yang sedang diedit adalah user admin yang sedang login
-    $is_current_admin = ($_SESSION['id'] == $edit_id);
-
-    // Validasi password hanya jika sedang edit admin sendiri
-    if ($is_current_admin && !empty($_POST['new_password'])) {
-        $new_password = $_POST['new_password'];
-        $confirm_password = $_POST['confirm_password'];
-
-        if ($new_password !== $confirm_password) {
-            $_SESSION['error_message'] = "Password and Confirm Password do not match.";
-            header("Location: editUser.php?id=" . $edit_id);
-            exit;
-        } else {
-            // Hash password
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            
-            // Update dengan password
-            $stmt = $conn->prepare("UPDATE users SET fullname = ?, id_role = ?, password = ? WHERE id = ?");
-            $stmt->bind_param("sssi", $fullname, $role, $hashed_password, $edit_id);
+        if (!$user_data) {
+            $error_message = "User not found.";
         }
     } else {
-        // Update tanpa password
-        $stmt = $conn->prepare("UPDATE users SET fullname = ?, id_role = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $fullname, $role, $edit_id);
-    }
-
-    // Eksekusi query
-    if ($stmt->execute()) {
-        $_SESSION['success_message'] = "User updated successfully.";
-        header("Location: listUsers.php");
-        exit;
-    } else {
-        $_SESSION['error_message'] = "Failed to update user: " . $stmt->error;
-        header("Location: listUsers.php");
-        exit;
+        $error_message = "Database query preparation failed.";
     }
 }
 
-// Jika tidak ada proses POST, tampilkan form
-?>
+// Process form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $userId) {
+    $new_username = trim($_POST['username']);
+    $new_fullname = trim($_POST['fullname']);
+    $new_password = $_POST['new_password'];
 
+    // Input validation
+    if (empty($new_username) || empty($new_fullname)) {
+        $error_message = "Username and Full Name cannot be empty!";
+    } else {
+        // Check if username is already taken by another user
+        $check_username_query = "SELECT id FROM users WHERE username = ? AND id != ?";
+        $check_username_stmt = $conn->prepare($check_username_query);
+        $check_username_stmt->bind_param("si", $new_username, $userId);
+        $check_username_stmt->execute();
+        $check_username_result = $check_username_stmt->get_result();
+        
+        if ($check_username_result->num_rows > 0) {
+            $error_message = "Username is already in use!";
+            $check_username_stmt->close();
+        } else {
+            $check_username_stmt->close();
+
+            // Prepare update query
+            $update_query = "UPDATE users SET username = ?, fullname = ?";
+            $bind_types = "ss";
+            $bind_params = [&$new_username, &$new_fullname];
+
+            // Handle password update if provided
+            if (!empty($new_password)) {
+                $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+                $update_query .= ", password = ?";
+                $bind_types .= "s";
+                $bind_params[] = &$hashed_password;
+            }
+
+            $update_query .= " WHERE id = ?";
+            $bind_types .= "i";
+            $bind_params[] = &$userId;
+
+            $update_stmt = $conn->prepare($update_query);
+            
+            // Dynamic parameter binding
+            $bind_param_array = array_merge([$bind_types], $bind_params);
+            call_user_func_array([$update_stmt, 'bind_param'], $bind_param_array);
+            
+            if ($update_stmt->execute()) {
+                // Update session if current user is editing their own profile
+                if ($userId == $_SESSION['id_user']) {
+                    $_SESSION['username'] = $new_username;
+                    $_SESSION['fullname'] = $new_fullname;
+                }
+                
+                $success_message = "Profile successfully updated!";
+
+                echo "<script>
+                alert('User berhasil diperbarui!');
+                window.location.href = 'listUsers.php';
+                </script>";
+            } else {
+                $error_message = "Failed to update profile: " . $conn->error;
+            }
+            $update_stmt->close();
+            
+        }
+    }
+}
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit User</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profil</title>
+    <link rel="stylesheet" href="../css/admin/editProfileUser.css">
 </head>
 <body>
-    <h1>Edit User</h1>
-    <?php if ($user): ?>
-    <form method="POST" action="">
-        <table>
-            <tr>
-                <td>Username:</td>
-                <td><?= htmlspecialchars($user['username']) ?> (Cannot be changed)</td>
-            </tr>
-            <tr>
-                <td>Fullname:</td>
-                <td><input type="text" name="fullname" value="<?= htmlspecialchars($user['fullname']) ?>" required></td>
-            </tr>
-            <tr>
-                <td>Role:</td>
-                <td>
-                    <select name="role">
-                        <option value="admin" <?= $user['id_role'] == 'admin' ? 'selected' : '' ?>>Admin</option>
-                        <option value="user" <?= $user['id_role'] == 'user' ? 'selected' : '' ?>>User</option>
-                    </select>
-                </td>
-            </tr>
-            
-            <?php 
-            // Tampilkan field password hanya jika sedang edit admin sendiri
-            if ($_SESSION['id'] == $edit_id): ?>
-            <tr>
-                <td>New Password:</td>
-                <td><input type="password" name="new_password"></td>
-            </tr>
-            <tr>
-                <td>Confirm Password:</td>
-                <td><input type="password" name="confirm_password"></td>
-            </tr>
-            <?php endif; ?>
-            
-            <tr>
-                <td colspan="2">
-                    <input type="submit" value="Update User">
-                    <a href="listUsers.php">Back to User List</a>
-                </td>
-            </tr>
-        </table>
-    </form>
-    <?php endif; ?>
+    <div class="navbar">
+        <div class="user-info">
+        <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
+        </div>
+        <a href="../logout.php" class="logout-btn">Logout</a>
+    </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboardAdmin.php">Dashboard</a>
+        <a href="listUsers.php">List Users</a>
+    </div>
+    <div class="content">
+        
+        <?php if ($user_data): ?>
+            <form method="post" action="editUser.php?id=<?php echo $userId; ?>">
+                <h2>Edit User</h2>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" 
+                    value="<?php echo htmlspecialchars($user_data['username']); ?>" required>
+                
+                <label for="fullname">Full Name</label>
+                <input type="text" id="fullname" name="fullname" 
+                value="<?php echo htmlspecialchars($user_data['fullname']); ?>" required>
+                
+                <label for="new_password">New Password (Leave blank if no change)</label>
+                <input type="password" id="new_password" name="new_password">
+                
+                <?php if ($error_message): ?>
+                    <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+                <?php endif; ?>
+                
+                <?php if ($success_message): ?>
+                    <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+                <?php endif; ?>
+                <button type="submit">Update Profile</button>
+            </form>
+        <?php else: ?>
+            <div class="error-message">Unable to load user data. Please check the user ID.</div>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
-
-<?php $conn->close(); ?>
