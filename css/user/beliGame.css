@@ -111,6 +111,29 @@ label {
 .voucher-container {
   margin-bottom: 15px;
 }
+.payment-method-container {
+  margin-bottom: 15px;
+}
+
+#payment_method {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #2c2c2c; /* Background input */
+  color: #e0e0e0; /* Warna teks */
+  border: 1px solid #333; /* Border abu-abu gelap */
+  font-size: 16px;
+}
+
+#payment_method:hover {
+  border-color: #00f7ff; /* Warna aksen */
+}
+
+#payment_method:focus {
+  border-color: #3498db;
+  outline: none;
+  background-color: #121212; /* Konsisten dengan tema gelap */
+}
 
 .styled-select {
   width: 100%;
@@ -127,19 +150,37 @@ label {
 }
 
 .buy-btn {
-  background-color: #03dac6; /* Tombol dengan warna aksen */
-  color: #121212; /* Teks tombol */
+  background-color: #03dac6; 
+  color: #121212;
   padding: 10px 15px;
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
+  text-decoration: none;
 }
 
 .buy-btn:hover {
-  background-color: #02c1b0; /* Warna saat hover */
+  background-color: #02c1b0; 
+
 }
+.back-btn {
+  background-color: #03dac6; 
+  color: #121212;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+}
+
+.back-btn:hover {
+  color: #02c1b0; 
+}
+
 
 @media (max-width: 768px) {
   .container {
@@ -163,4 +204,5 @@ label {
     margin-left: 0;
     margin-bottom: 10px;
   }
+  
 }

@@ -42,7 +42,7 @@ $hasil = $conn->query($voucher);
 <body>
     <div class="navbar">
         <div class="user-info">
-            <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
+            <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['username'])); ?></span>
         </div>
         <a href="../logout.php" class="logout-btn">Logout</a>
     </div>

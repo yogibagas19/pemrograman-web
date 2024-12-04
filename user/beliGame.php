@@ -21,8 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $conn->real_escape_string($_POST['id']);
     $id_pembeli = $_SESSION['id_user']; // Pastikan `id_user` tersimpan di session saat login
     $voucher_id = $role === 'member' ? ($_POST['voucher'] ?? null) : null;
-    if ($voucher_id === '') {
-        $voucher_id = null;
+    $payment_method = $conn->real_escape_string($_POST['payment_method']); // Ambil metode pembayaran
+
+    // Validasi metode pembayaran
+    $valid_payment_methods = ['credit_card', 'bank_transfer', 'e_wallet', 'Minimarket'];
+    if (!in_array($payment_method, $valid_payment_methods)) {
+        echo "<script>
+            alert('Metode pembayaran tidak valid.');
+            window.location.href = 'gameDetail.php?id=$id';
+        </script>";
+        exit;
     }
 
     // Ambil detail game berdasarkan id
@@ -76,16 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Masukkan data ke tabel riwayat pembelian
-        $query_insert = "INSERT INTO purchase_history (user_id, game_id, voucher_id, discount_amount, total_price) 
-                         VALUES (?, ?, ?, ?, ?)";
+        $query_insert = "INSERT INTO purchase_history (user_id, game_id, voucher_id, discount_amount, total_price, payment_method) 
+                         VALUES (?, ?, ?, ?, ?, ?)";
         $stmt_insert = $conn->prepare($query_insert);
 
         // Jika voucher_id kosong, set nilainya menjadi NULL untuk query
         if (empty($voucher_id)) {
             $voucher_id = null;
-            $stmt_insert->bind_param("iiidd", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice);
+            $stmt_insert->bind_param("iiidds", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice, $payment_method);
         } else {
-            $stmt_insert->bind_param("iiidd", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice);
+            $stmt_insert->bind_param("iiidds", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice, $payment_method);
         }
 
         if ($stmt_insert->execute()) {
@@ -109,7 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 }
-
 
 // Tampilkan halaman detail game
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -145,7 +152,6 @@ if ($role === 'member') {
     $result_vouchers = $conn->query($query_vouchers);
     $vouchers = $result_vouchers->fetch_all(MYSQLI_ASSOC);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -155,6 +161,7 @@ if ($role === 'member') {
     <meta charset="UTF-8">
     <title>Beli Game</title>
     <link rel="stylesheet" href="../css/user/beliGame.css" />
+    <link href="../css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -183,26 +190,33 @@ if ($role === 'member') {
 
                 <form method="POST" id="purchaseForm">
                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-
                     <!-- Select Voucher hanya untuk role member -->
                     <?php if ($role === 'member') : ?>
                         <label for="voucher">Pilih Voucher:</label>
-<div class="voucher-container">
-    <select name="voucher" id="voucher" class="styled-select">
-        <option value="">Tidak Menggunakan Voucher</option>
-        <?php foreach ($vouchers as $voucher) : ?>
-            <option value="<?php echo $voucher['id']; ?>"
-                data-rate="<?php echo $voucher['discount_rate']; ?>"
-                data-max-discount="<?php echo $voucher['max_discount'] ?? 0; ?>">
-                🎉 <?php echo $voucher['code']; ?> - Diskon <?php echo $voucher['discount_rate']; ?>%
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-
-                    <?php endif; ?>
-
+                    <div class="voucher-container">
+                        <select name="voucher" id="voucher" class="styled-select">
+                            <option value="">Tidak Menggunakan Voucher</option>
+                            <?php foreach ($vouchers as $voucher) : ?>
+                                <option value="<?php echo $voucher['id']; ?>"
+                                    data-rate="<?php echo $voucher['discount_rate']; ?>"
+                                    data-max-discount="<?php echo $voucher['max_discount'] ?? 0; ?>">
+                                    🎉 <?php echo $voucher['code']; ?> - Diskon <?php echo $voucher['discount_rate']; ?>%
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                        <?php endif; ?>
+                        <div class="payment-method-container">
+                            <p>Pilih Metode Pembayaran:</p>
+                            <select name="payment_method" id="payment_method" required>
+                                <option value="credit_card">Kartu Kredit</option>
+                                <option value="bank_transfer">Transfer Bank</option>
+                                <option value="e_wallet">E-Wallet (OVO, GoPay, Dana)</option>
+                                <option value="Minimarket">Minimarket</option>
+                            </select>
+                        </div>
                     <button type="submit" class="buy-btn">Konfirmasi Beli</button>
+                    <a href="/pemrograman-web/user/gameList.php" class="back-btn">Kembali</a>
                 </form>
             </div>
         </div>

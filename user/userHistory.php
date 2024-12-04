@@ -22,8 +22,8 @@ $id_user = $_SESSION['id_user'];
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Role tidak ditemukan';
 
 // Ambil riwayat pembelian berdasarkan user_id
-$query = "SELECT ph.id, ph.purchase_date, g.name AS game_name, ph.total_price, 
-                 IFNULL(v.discount_rate * g.price / 100, 0) AS discount_amount
+$query = "SELECT ph.id, ph.purchase_date, g.name AS game_name, ph.total_price,  
+                 IFNULL(v.discount_rate * g.price / 100, 0) AS discount_amount, ph.payment_method
           FROM purchase_history ph
           LEFT JOIN games g ON ph.game_id = g.id
           LEFT JOIN vouchers v ON ph.voucher_id = v.id
@@ -31,9 +31,10 @@ $query = "SELECT ph.id, ph.purchase_date, g.name AS game_name, ph.total_price,
           ORDER BY ph.purchase_date DESC"; // Menampilkan berdasarkan tanggal pembelian terbaru
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_user);
+$stmt->bind_param("i", $id_user);  // ID pengguna yang sedang login
 $stmt->execute();
 $result = $stmt->get_result();
+
 
 // assign member
 
@@ -94,6 +95,7 @@ $conn->close();
                     <th>Nama Game</th>
                     <th>Total Harga</th>
                     <th>Diskon</th>
+                    <th>Pembayaran</th>
                     <th>Tanggal Pembelian</th>
                 </tr>
             </thead>
@@ -109,6 +111,26 @@ $conn->close();
                             <?php else: ?>
                                 Tidak ada diskon
                             <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php
+                            switch ($row['payment_method']) {
+                                case 'credit_card':
+                                    echo "Kartu Kredit";
+                                    break;
+                                case 'bank_transfer':
+                                    echo "Transfer Bank";
+                                    break;
+                                case 'e_wallet':
+                                    echo "E-Wallet (OVO, GoPay, Dana)";
+                                    break;
+                                case 'Minimarket':
+                                    echo "Minimarket";
+                                    break;
+                                default:
+                                    echo "Metode tidak diketahui";
+                            }
+                            ?>
                         </td>
                         <td><?php echo date("d-m-Y H:i", strtotime($row['purchase_date'])); ?></td>
                     </tr>

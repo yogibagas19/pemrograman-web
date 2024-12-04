@@ -183,6 +183,7 @@ h1 {
 
 .history-table tbody tr {
   border-bottom: 1px solid #2c2f36; /* Garis pembatas antar baris */
+  text-align: center;
 }
 
 .history-table td {
