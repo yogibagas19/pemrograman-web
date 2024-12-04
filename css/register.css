@@ -1,0 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #151f28;
+  overflow: hidden;
+}
+
+.register-box {
+  position: relative;
+  width: 400px;
+  height: 500px;
+  background: #191919;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+h2 {
+  font-size: 2em;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+}
+
+.input-box {
+  position: relative;
+  width: 100%;
+  margin: 25px 0;
+}
+
+.input-box .input-line {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  background: #00f7ff;
+  box-shadow: 0 0 5px #00f7ff;
+}
+
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  font-size: 1em;
+  color: #fff;
+  pointer-events: none;
+  transition: 0.5s ease;
+}
+
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+  top: -5px;
+  color: #00f7ff;
+  text-shadow: 0 0 5px #00f7ff;
+}
+
+.input-box input {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  color: #fff;
+  padding: 0 35px 0 5px;
+  transition: 0.5s ease;
+}
+
+.input-box input:focus,
+.input-box input:valid {
+  color: #00f7ff;
+  text-shadow: 0 0 5px rgba(0, 247, 255, 0.3);
+}
+
+button {
+  width: 100%;
+  height: 45px;
+  background: #00f7ff;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #191919;
+  font-weight: 500;
+  transition: 0.5s ease;
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+}
+
+button:hover {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.login-link {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.login-link a {
+  color: #00f7ff;
+  text-decoration: none;
+  font-weight: 600;
+  text-shadow: 0 0 5px rgba(0, 247, 255, 0.3);
+  transition: 0.3s ease;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 10px #00f7ff;
+}
+
+.glowing-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 10px;
+  background: #00f7ff;
+  border-radius: 20px;
+  opacity: 0.5;
+}
+
+.light {
+  position: absolute;
+  top: -90%;
+  left: 0;
+  width: 100%;
+  height: 950px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.3) -50%,
+    rgba(255, 255, 255, 0) 90%
+  );
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
