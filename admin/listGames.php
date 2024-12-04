@@ -129,7 +129,7 @@ $result = $conn->query($query);
         .content {
             margin-left: 240px;
             padding: 20px;
-            padding-top: 80px;
+            padding-top: 10px;
         }
 
         table {
@@ -223,7 +223,7 @@ $result = $conn->query($query);
     <!-- Navbar -->
     <div class="navbar">
         <div class="user-info">
-            <span>Welcome, <?php echo htmlspecialchars($_SESSION['fullname']); ?></span>
+        <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
         </div>
         <a href="../logout.php" class="logout-btn">Logout</a>
     </div>
@@ -233,48 +233,44 @@ $result = $conn->query($query);
         <a href="dashboardAdmin.php">Dashboard</a>
         <a href="listUsers.php">List Users</a>
         <a href="#" class="active">List Games</a>
-        <a href="listVoucher.php">List Voucher</a>
+        <a href="listVoucher.php">List Vouchers </a>
+        <a href="userHistory.php">User History</a>
     </div>
 
-    <!-- Main Content -->
-    <div class="container">
-        <section class="content">
-            <header>
-                <h1>List Game</h1>
-            </header>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama Game</th>
-                        <th>Harga Game</th>
-                        <th>Foto Game</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($result->num_rows > 0): ?>
-                        <?php while ($row = $result->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo $row['id'] ?></td>
-                                <td><?php echo $row['name'] ?></td>
-                                <td>Rp <?php echo number_format($row['price'], 2, ',', '.') ?></td>
-                                <td><img src="../images/<?php echo $row['photo'] ?>" alt="<?php echo $row['name'] ?>" class="product-img" width="250"></td>
-                                <td>
-                                    <a href="editGame.php?id=<?php echo $row['id'] ?>" class="btn edit-btn">Edit</a>
-                                    <a href="?delete_id=<?php echo $row['id'] ?>" class="btn delete-btn" onclick='return confirm(\"Anda yakin ingin menghapus game ini?\")'>Delete</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+    <div class="content">
+        <h1>List Game</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nama Game</th>
+                    <th>Harga Game</th>
+                    <th>Foto Game</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td colspan="6">Tidak ada data game.</td>
+                            <td><?php echo $row['id'] ?></td>
+                            <td><?php echo $row['name'] ?></td>
+                            <td>Rp <?php echo number_format($row['price'], 2, ',', '.') ?></td>
+                            <td><img src="../images/<?php echo $row['photo'] ?>" alt="<?php echo $row['name'] ?>" class="product-img" width="250"></td>
+                            <td>
+                                <a href="editGame.php?id=<?php echo $row['id'] ?>" class="btn edit-btn">Edit</a>
+                                <a href="?delete_id=<?php echo $row['id'] ?>" class="btn delete-btn" onclick='return confirm(\"Anda yakin ingin menghapus game ini?\")'>Delete</a>
+                            </td>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-            <a href="createGame.php" class="btn add-btn">Tambah Game</a>
-        </section>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="6">Tidak ada data game.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        <a href="createGame.php" class="btn add-btn">Tambah Game</a>
     </div>
 </body>
 

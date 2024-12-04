@@ -146,7 +146,7 @@ $result = $conn->query($sql);
         .content {
             margin-left: 240px;
             padding: 20px;
-            padding-top: 80px;
+            padding-top: 10px;
         }
 
         table {
@@ -224,7 +224,7 @@ $result = $conn->query($sql);
     <!-- Navbar -->
     <div class="navbar">
         <div class="user-info">
-            Welcome, <?php echo htmlspecialchars($_SESSION['fullname']); ?>
+        <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
         </div>
         <a href="../logout.php" class="logout-btn">Logout</a>
     </div>
@@ -234,7 +234,8 @@ $result = $conn->query($sql);
         <a href="dashboardAdmin.php">Dashboard</a>
         <a href="#" class="active">List Users</a>
         <a href="listGames.php">List Games</a>
-        <a href="listVoucher.php">List Voucher</a>
+        <a href="listVoucher.php">List Vouchers</a>
+        <a href="userHistory.php">User History</a>
     </div>
 
     <!-- Content -->

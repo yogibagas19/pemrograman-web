@@ -1,37 +1,26 @@
 <?php
-// Mulai sesi
 session_start();
-
-// Cek apakah pengguna adalah admin (misalnya dengan mengecek role dalam session)
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    echo "<script>
-        alert('Hanya admin yang dapat mengakses halaman ini.');
-        window.location.href = '../login.php';
-    </script>";
+if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
+    header("Location: ../login.php");
     exit;
 }
 
-// Include file koneksi
-require_once '../db_connection.php';
-
-// Buat koneksi
+include '../db_connection.php';
 $conn = connect_db();
 
-// Ambil semua transaksi dari tabel purchase_history
-$query = "SELECT ph.id, ph.purchase_date, u.fullname AS user_name, g.name AS game_name, ph.total_price, 
-                 IFNULL(v.discount_rate * g.price / 100, 0) AS discount_amount
-          FROM purchase_history ph
-          LEFT JOIN users u ON ph.user_id = u.id
-          LEFT JOIN games g ON ph.game_id = g.id
-          LEFT JOIN vouchers v ON ph.voucher_id = v.id
-          ORDER BY ph.purchase_date DESC"; // Menampilkan berdasarkan tanggal pembelian terbaru
-
+// Ambil data riwayat pembelian dari tabel purchase_history
+$query = "
+    SELECT ph.id, ph.purchase_date, u.fullname AS user_name, g.name AS game_name, ph.total_price, 
+           IFNULL(v.discount_rate * g.price / 100, 0) AS discount_amount
+    FROM purchase_history ph
+    LEFT JOIN users u ON ph.user_id = u.id
+    LEFT JOIN games g ON ph.game_id = g.id
+    LEFT JOIN vouchers v ON ph.voucher_id = v.id
+    ORDER BY ph.purchase_date ASC
+";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $result = $stmt->get_result();
-
-// Tutup koneksi
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -40,8 +29,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Pembelian - Admin</title>
-    <link rel="stylesheet" href="../css/admin/transactionHistory.css">
+    <title>Riwayat Pembelian</title>
     <style>
         /* Global Styles */
         body {
@@ -61,13 +49,15 @@ $conn->close();
             background-color: #2c3e50;
             color: #ecf0f1;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            /* Tidak menggunakan fixed agar tidak melampaui konten */
+            z-index: 1000;
+            /* Pastikan navbar berada di atas sidebar */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            /* Tambahkan ini agar z-index bekerja */
         }
 
         .navbar .user-info {
-            display: flex;
-            align-items: center;
             font-size: 16px;
         }
 
@@ -89,13 +79,17 @@ $conn->close();
         .sidebar {
             position: fixed;
             top: 60px;
+            /* Jarak dari atas untuk menyesuaikan dengan tinggi navbar */
             left: 0;
             width: 220px;
-            height: 100%;
+            height: calc(100% - 60px);
+            /* Kurangi tinggi navbar */
             background-color: #34495e;
             color: #ecf0f1;
             padding: 20px 10px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 500;
+            /* Z-index lebih rendah dari navbar */
         }
 
         .sidebar a {
@@ -118,65 +112,118 @@ $conn->close();
         .content {
             margin-left: 240px;
             padding: 20px;
-            padding-top: 80px;
+            padding-top: 10px;
         }
 
-        .content h1 {
-            font-size: 2em;
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
-        }
-
-        .card {
-            background: #fff;
-            padding: 20px;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            overflow: hidden;
         }
 
-        .card h2 {
-            margin: 0 0 10px;
-            font-size: 1.5em;
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
         }
 
-        .card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        table th {
+            background-color: #2c3e50;
+            color: #ecf0f1;
         }
 
-        .card ul li {
-            margin-bottom: 10px;
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
 
-        .card ul li a {
+        .action-buttons a {
             text-decoration: none;
-            color: #3498db;
-            transition: color 0.3s;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 14px;
         }
 
-        .card ul li a:hover {
-            color: #2980b9;
+        .btn {
+            padding: 8px 12px;
+            /* Ukuran padding */
+            border-radius: 4px;
+            font-size: 14px;
+            /* Ukuran font */
+            text-align: center;
+            display: inline-block;
+            /* Pastikan tombol tidak tumpuk */
+            transition: background-color 0.3s ease;
+        }
+
+        /* Edit button */
+        .edit-btn {
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .edit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            background-color: #e74c3c;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .disabled {
+            color: #888;
+        }
+
+        .add-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #1abc9c;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .add-btn:hover {
+            background-color: #16a085;
         }
     </style>
 </head>
 
 <body>
     <div class="navbar">
-        <h1>GameStore Admin</h1>
-        <ul>
-            <li><a href="dashboardAdmin.php">Dashboard</a></li>
-            <li><a href="listGames.php">List Game</a></li>
-            <li><a href="transactionHistory.php">Riwayat Pembelian</a></li>
-            <li><a href="logout.php" class="logout-btn">Logout</a></li>
-        </ul>
+        <div class="user-info">
+            <span>Welcome, <?php echo htmlspecialchars(ucfirst($_SESSION['fullname'])); ?></span>
+        </div>
+        <a href="../logout.php" class="logout-btn">Logout</a>
     </div>
 
-    <div class="container">
-        <h1>Riwayat Pembelian Semua Pengguna</h1>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboardAdmin.php">Dashboard</a>
+        <a href="listUsers.php">List Users</a>
+        <a href="listGames.php">List Games</a>
+        <a href="listVoucher.php">List Vouchers</a>
+        <a href="#" class="active">User History</a>
+    </div>
 
-        <?php if ($result->num_rows > 0): ?>
-            <table>
+    <!-- Main Content -->
+    <div class="content">
+        <h1>Riwayat Pembelian Pengguna</h1>
+        <table>
+            <?php if ($result->num_rows > 0): ?>
                 <thead>
                     <tr>
                         <th>ID Pembelian</th>
@@ -205,10 +252,10 @@ $conn->close();
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
-            </table>
-        <?php else: ?>
-            <p>Tidak ada transaksi yang ditemukan.</p>
-        <?php endif; ?>
+            <?php else: ?>
+                <h1>Tidak ada transaksi tersedia saat ini.</h1>
+            <?php endif; ?>
+        </table>
     </div>
 </body>
 

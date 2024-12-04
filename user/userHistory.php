@@ -34,6 +34,26 @@ $stmt->bind_param("i", $id_user);
 $stmt->execute();
 $result = $stmt->get_result();
 
+$cekPengeluaran = "select total_price from purchase_history where user_id = $id_user";
+$totalPengeluaran = $conn->query($cekPengeluaran);
+
+if ($totalPengeluaran === false) {
+    die("Error query: " . $conn->error);
+}
+
+$jumlah = 0;
+while ($row1 = $totalPengeluaran->fetch_assoc()) {
+    $jumlah += $row1['total_price'];
+}
+
+if($jumlah >= 100000){
+    $ubahRole = "update users set role = 'member' where id = $id_user";
+    if(!$conn->query($ubahRole)) {
+        die("Error update: " . $conn->error);
+    }
+    echo "<script>alert('Selamat kamu sudah menjadi member');</script>";
+}
+
 // Tutup koneksi
 $conn->close();
 ?>

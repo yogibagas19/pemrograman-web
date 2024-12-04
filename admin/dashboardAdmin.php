@@ -89,7 +89,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
         .content {
             margin-left: 240px;
             padding: 20px;
-            padding-top: 80px;
+            padding-top: 10px;
         }
 
         .content h1 {
