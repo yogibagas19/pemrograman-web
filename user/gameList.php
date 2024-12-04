@@ -29,14 +29,20 @@ $result = $conn->query($query);
     <meta charset="UTF-8">
     <title>Dashboard Users</title>
     <link rel="stylesheet" href="../css/user/gameList.css" />
+    <style>
+        .posisi{
+            color: #00f7ff;
+        }
+    </style>
 </head>
 
 <body>
     <div class="navbar">
         <h1>GameStore</h1>
         <ul>
-            <li><a href="gameList.php">Game List</a></li>
+            <li><a href="gameList.php" class="posisi">Game List</a></li>
             <li><a href="userHistory.php">Riwayat Pembelian</a></li>
+            <li><a href="editProfileUser.php">Edit Profile</a></li>
             <li><a href="../logout.php">Logout</a></li>
         </ul>
     </div>
@@ -77,6 +83,18 @@ $result = $conn->query($query);
             ?>
         </div>
     </div>
+    <script>
+  // Mendapatkan semua link dalam navbar
+  const navLinks = document.querySelectorAll('.navbar a');
+
+  // Menambahkan event listener pada setiap link
+  navLinks.forEach(link => {
+    // Cek jika URL saat ini sama dengan href dari link
+    if (window.location.href.includes(link.href)) {
+      link.classList.add('active'); // Tambahkan kelas 'active' jika cocok
+    }
+  });
+</script>
 
 </body>
 

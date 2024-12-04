@@ -32,14 +32,14 @@ h2 {
   font-size: 2em;
   color: #fff;
   text-align: center;
-  transition: 0.5s ease;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
 }
-
 
 .input-box {
   position: relative;
-  width: 310px;
-  margin: 30px 0;
+  width: 100%;
+  margin: 25px 0;
 }
 
 .input-box .input-line {
@@ -48,21 +48,8 @@ h2 {
   left: 0;
   width: 100%;
   height: 2.5px;
-  background: #fff;
-  transition: 0.5s ease;
-}
-.input-check:checked ~ h2 {
-  color: #00f7ff;
-  text-shadow: 0 0 15px #00f7ff, 0 0 30px #00f7ff;
-}
-
-.input-check:checked ~ .input-box .input-line {
   background: #00f7ff;
-  box-shadow: 0 0 10px #00f7ff;
-}
-.input-check:checked ~ .input-box label {
-  color: #00f7ff;
-  text-shadow: 0 0 10px #00f7ff;
+  box-shadow: 0 0 5px #00f7ff;
 }
 
 .input-box label {
@@ -79,8 +66,9 @@ h2 {
 .input-box input:focus ~ label,
 .input-box input:valid ~ label {
   top: -5px;
+  color: #00f7ff;
+  text-shadow: 0 0 5px #00f7ff;
 }
-
 
 .input-box input {
   width: 100%;
@@ -94,71 +82,16 @@ h2 {
   transition: 0.5s ease;
 }
 
-
-.input-box .icon {
-  position: absolute;
-  right: 8px;
-  color: #fff;
-  font-size: 1.2em;
-  line-height: 57px;
-  transition: 0.5s ease;
-}
-
-.input-check:checked ~ .input-box input {
+.input-box input:focus,
+.input-box input:valid {
   color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
-}
-.input-check:checked ~ .input-box .icon {
-  color: #00f7ff;
-  filter: drop-shadow(0 0 5px #00f7ff);
-}
-.input-check:checked ~ .remember-forgot {
-  color: #00f7ff;
-  text-shadow: 0 0 10px #00f7ff;
-}
-
-.remember-forgot {
-  color: #fff;
-  font-size: 0.9em;
-  margin: -15px 0 15px;
-  display: flex;
-  justify-content: space-between;
-  transition: 0.5s ease;
-}
-
-
-.remember-forgot label input {
-  accent-color: #fff;
-  margin-right: 3px;
-  transition: 0.5s ease;
-}
-
-
-.remember-forgot a {
-  color: #fff;
-  text-decoration: none;
-  transition: color 0.5s ease;
-}
-
-.remember-forgot a:hover {
-  text-decoration: underline;
-}
-
-.input-check:checked ~ .remember-forgot label input {
-  accent-color: #00f7ff;
-}
-.input-check:checked ~ .remember-forgot a {
-  color: #00f7ff;
-}
-.input-check:checked ~ button {
-  background: #00f7ff;
-  box-shadow: 0 0 15px #00f7ff, 0 0 15px #00f7ff;
+  text-shadow: 0 0 5px rgba(0, 247, 255, 0.3);
 }
 
 button {
   width: 100%;
-  height: 40px;
-  background: #fff;
+  height: 45px;
+  background: #00f7ff;
   border: none;
   outline: none;
   border-radius: 40px;
@@ -167,6 +100,30 @@ button {
   color: #191919;
   font-weight: 500;
   transition: 0.5s ease;
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+}
+
+button:hover {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.login-link {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.login-link a {
+  color: #00f7ff;
+  text-decoration: none;
+  font-weight: 600;
+  text-shadow: 0 0 5px rgba(0, 247, 255, 0.3);
+  transition: 0.3s ease;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 10px #00f7ff;
 }
 
 .glowing-light {
@@ -178,43 +135,12 @@ button {
   height: 10px;
   background: #00f7ff;
   border-radius: 20px;
-}
-
-
-.login-link {
-  color: #fff;
-  font-size: 0.9em;
-  text-align: center;
-  margin: 25px 0 10px;
-  transition: 0.5s ease;
-}
-
-
-.login-link p a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.5s ease;
-}
-
-.login-link p a:hover {
-  text-decoration: underline;
-}
-
-.input-check:checked ~ .login-link {
-  color: #00f7ff;
-  text-shadow: 0 0 10px #00f7ff;
-}
-.input-check:checked ~ .login-link p a {
-  color: #00f7ff;
-}
-.input-check:checked ~ .light {
-  top: -90%;
+  opacity: 0.5;
 }
 
 .light {
   position: absolute;
-  top: -200%;
+  top: -90%;
   left: 0;
   width: 100%;
   height: 950px;
@@ -225,113 +151,4 @@ button {
   );
   clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
   pointer-events: none;
-  transition: 0.5s ease;
-}
-
-
-.toggle {
-  position: absolute;
-  top: 20px;
-  right: -70px;
-  width: 60px;
-  height: 120px;
-  background: #191919;
-  border-radius: 10px;
-}
-
-.toggle::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 80%;
-  background: #000;
-}
-
-.toggle::after {
-  content: "";
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 45px;
-  height: 45px;
-  background: #333;
-  border: 2px solid #191919;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  transition: 0.5s ease;
-}
-
-.input-check:checked ~ .toggle::after {
-  top: 65px;
-}
-
-.input-check {
-  position: absolute;
-  right: -70px;
-  z-index: 1;
-  opacity: 0;
-}
-
-.toggle .text {
-  position: absolute;
-  top: 17px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  font-size: 1em;
-  z-index: 1;
-  text-transform: uppercase;
-  pointer-events: none;
-  transition: 0.5s ease;
-}
-
-.toggle .text.off {
-  opacity: 1;
-}
-
-
-.toggle .text.on {
-  opacity: 0;
-}
-
-.input-check:checked ~ .toggle .text.off {
-  top: 76px;
-  opacity: 0;
-}
-.input-check:checked ~ .toggle .text.on {
-  top: 76px;
-  opacity: 1;
-  color: #00f7ff;
-  text-shadow: 0 0 15px #00f7ff, 0 0 30px #00f7ff, 0 0 45px #00f7ff,
-    0 0 60px #00f7ff;
-}
-
-.error-message {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 350px;
-  background-color: rgba(255, 77, 77, 0.1);
-  color: #ff4d4d;
-  font-size: 0.9em;
-  text-align: center;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid rgba(255, 77, 77, 0.3);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 10;
-}
-
-.error-message.show {
-  opacity: 1;
-  visibility: visible;
 }

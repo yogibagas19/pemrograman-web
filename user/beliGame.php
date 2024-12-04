@@ -20,7 +20,10 @@ $role = $_SESSION['role']; // Role akan diambil dari session
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $conn->real_escape_string($_POST['id']);
     $id_pembeli = $_SESSION['id_user']; // Pastikan `id_user` tersimpan di session saat login
-    $voucher_id = $role === 'member' ? ($_POST['voucher'] ?? null) : null; // Hanya gunakan voucher jika role adalah member
+    $voucher_id = $role === 'member' ? ($_POST['voucher'] ?? null) : null;
+    if ($voucher_id === '') {
+        $voucher_id = null;
+    }
 
     // Ambil detail game berdasarkan id
     $query = "SELECT id, name, price FROM games WHERE id = ?";
@@ -76,7 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $query_insert = "INSERT INTO purchase_history (user_id, game_id, voucher_id, discount_amount, total_price) 
                          VALUES (?, ?, ?, ?, ?)";
         $stmt_insert = $conn->prepare($query_insert);
-        $stmt_insert->bind_param("iiidd", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice);
+
+        // Jika voucher_id kosong, set nilainya menjadi NULL untuk query
+        if (empty($voucher_id)) {
+            $voucher_id = null;
+            $stmt_insert->bind_param("iiidd", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice);
+        } else {
+            $stmt_insert->bind_param("iiidd", $id_pembeli, $game['id'], $voucher_id, $discountAmount, $totalPrice);
+        }
 
         if ($stmt_insert->execute()) {
             echo "<script>
@@ -135,6 +145,7 @@ if ($role === 'member') {
     $result_vouchers = $conn->query($query_vouchers);
     $vouchers = $result_vouchers->fetch_all(MYSQLI_ASSOC);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -143,17 +154,17 @@ if ($role === 'member') {
 <head>
     <meta charset="UTF-8">
     <title>Beli Game</title>
-    <link rel="stylesheet" href="../../css/user/beliGame.css" />
+    <link rel="stylesheet" href="../css/user/beliGame.css" />
 </head>
 
 <body>
     <div class="navbar">
         <h1>GameStore</h1>
         <ul>
-            <li><a href="dashboardUser.php">Dashboard</a></li>
-            <li><a href="gameList.php">Game List</a></li>
+            <li><a href="gameList.php" class="posisi">Game List</a></li>
             <li><a href="userHistory.php">Riwayat Pembelian</a></li>
-            <li><a href="logout.php" class="logout-btn">Logout</a></li>
+            <li><a href="editProfileUser.php">Edit Profile</a></li>
+            <li><a href="../logout.php">Logout</a></li>
         </ul>
     </div>
 
@@ -176,16 +187,19 @@ if ($role === 'member') {
                     <!-- Select Voucher hanya untuk role member -->
                     <?php if ($role === 'member') : ?>
                         <label for="voucher">Pilih Voucher:</label>
-                        <select name="voucher" id="voucher">
-                            <option value="">Tidak Menggunakan Voucher</option>
-                            <?php foreach ($vouchers as $voucher) : ?>
-                                <option value="<?php echo $voucher['id']; ?>"
-                                    data-rate="<?php echo $voucher['discount_rate']; ?>"
-                                    data-max-discount="<?php echo $voucher['max_discount'] ?? 0; ?>">
-                                    <?php echo $voucher['code']; ?> - Diskon <?php echo $voucher['discount_rate']; ?>%
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+<div class="voucher-container">
+    <select name="voucher" id="voucher" class="styled-select">
+        <option value="">Tidak Menggunakan Voucher</option>
+        <?php foreach ($vouchers as $voucher) : ?>
+            <option value="<?php echo $voucher['id']; ?>"
+                data-rate="<?php echo $voucher['discount_rate']; ?>"
+                data-max-discount="<?php echo $voucher['max_discount'] ?? 0; ?>">
+                🎉 <?php echo $voucher['code']; ?> - Diskon <?php echo $voucher['discount_rate']; ?>%
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
                     <?php endif; ?>
 
                     <button type="submit" class="buy-btn">Konfirmasi Beli</button>
